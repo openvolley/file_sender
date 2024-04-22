@@ -84,7 +84,7 @@ fn sf_check_send(sf: Arc<Mutex<ScoutFileInner>>) {
     } else if local_self.busy {
         if IS_DEBUG { println!("Needs sending but busy"); }
     } else {
-        if IS_DEBUG { println!("Does not need sending"); }
+//        if IS_DEBUG { println!("Does not need sending"); }
         // send OK if file exists
         match local_self.path.try_exists() {
             Ok(_) => { local_self.app.emit_all("scout_file_status", Payload { message: "ok".into() }).unwrap(); },
@@ -176,10 +176,11 @@ fn sf_send(sf: Arc<Mutex<ScoutFileInner>>) {
             // do the actual POST operation
             let desturl = make_live_data_url(local_self2.pantry_id.clone(), get_basket_name(local_self2.path.clone()));
             if IS_DEBUG { println!("Will be posting to: {}", desturl.clone()); }
-            drop(local_self2); // release lock while sending
             let fname = thisp.as_path().file_name().unwrap().to_str().unwrap();
             let post_data = PostData { filename: fname.into(), data: cont2, last_modified: format!("{:?}", Utc::now()) };
 
+            local_self2.modified = false; // clear the 'modified' status just prior to sending. Any new modifications while the send is in progress will therefore be flagged
+            drop(local_self2); // release lock while sending
             let client = reqwest::blocking::Client::new()
                 .post(desturl)
                 .header("Content-Type", "application/json")
@@ -187,12 +188,13 @@ fn sf_send(sf: Arc<Mutex<ScoutFileInner>>) {
 
             local_self2 = temp2.lock().unwrap();
             if client.status().is_success() {
-                local_self2.modified = false;
                 if IS_DEBUG { println!("success!"); }
             } else if client.status().is_server_error() {
+                local_self2.modified = true; // send failed, so reset state to modified
                 if IS_DEBUG { println!("server error! {:?}", client); }
                 local_self2.app.emit_all("scout_file_status", Payload { message: "failed".into() }).unwrap(); // TODO get err msg or code
             } else {
+                local_self2.modified = true; // send failed, so reset state to modified
                 if IS_DEBUG { println!("Something else happened. Status: {:?}", client.status()); }
                 local_self2.app.emit_all("scout_file_status", Payload { message: "failed".into() }).unwrap(); // TODO get err msg or code
             }
