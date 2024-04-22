@@ -88,6 +88,11 @@ button {
   margin-right: 5px;
 }
 
+#scout-file-status {
+    font-size: 32px;
+    vertical-align: middle;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
