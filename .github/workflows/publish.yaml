@@ -13,9 +13,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest' # for Arm based macs (M1 and above).
-            args: '--target aarch64-apple-darwin'
-            suargs: '--target aarch64-apple-darwin --features hide-su-link --config src-tauri/tauri.conf-nosu.json'
+          # - platform: 'macos-latest' # for Arm based macs (M1 and above).
+          #   args: '--target aarch64-apple-darwin'
+          #   suargs: '--target aarch64-apple-darwin --features hide-su-link --config src-tauri/tauri.conf-nosu.json'
           - platform: 'macos-latest' # for Intel based macs.
             args: '--target x86_64-apple-darwin'
             suargs: '--target x86_64-apple-darwin --features hide-su-link --config src-tauri/tauri.conf-nosu.json'
