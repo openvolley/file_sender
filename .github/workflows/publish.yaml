@@ -15,12 +15,16 @@ jobs:
         include:
           - platform: 'macos-latest' # for Arm based macs (M1 and above).
             args: '--target aarch64-apple-darwin'
+            suargs: '--target aarch64-apple-darwin --features hide-su-link --config src-tauri/tauri.conf-nosu.json'
           - platform: 'macos-latest' # for Intel based macs.
             args: '--target x86_64-apple-darwin'
+            suargs: '--target x86_64-apple-darwin --features hide-su-link --config src-tauri/tauri.conf-nosu.json'
           - platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
             args: ''
+            suargs: '--features hide-su-link --config src-tauri/tauri.conf-nosu.json'
           - platform: 'windows-latest'
             args: ''
+            suargs: '--features hide-su-link --config src-tauri/tauri.conf-nosu.json'
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -68,4 +72,4 @@ jobs:
           releaseBody: 'See the assets to download the version for your platform. The files named nosu show only the live data URL, not the Science Untangled live app url.'
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.args }} " --features hide-su-link --config src-tauri/tauri.conf-nosu.json"
+          args: ${{ matrix.suargs }}
