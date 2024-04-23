@@ -31,27 +31,52 @@ struct Payload {
     message: String,
 }
 
-// use a debounced file watcher, so that multiple events issued at almost the same time will be collapsed to a single event
-use notify_debouncer_mini::new_debouncer;
-fn watch2(path: PathBuf, sf: Arc<Mutex<ScoutFileInner>>) {
+// // watch for file system events
+// // use a debounced file watcher, so that multiple events issued at almost the same time will be collapsed to a single event
+// use notify_debouncer_mini::new_debouncer;
+// fn watch_by_events(path: PathBuf, sf: Arc<Mutex<ScoutFileInner>>) {
+//     let (tx, rx) = std::sync::mpsc::channel();
+//     let mut debouncer = new_debouncer(std::time::Duration::from_millis(250), None, tx).unwrap();
+//     thread::spawn(move || {
+//         debouncer.watcher().watch(path.clone().as_path(), notify::RecursiveMode::NonRecursive).unwrap();
+//         block_in_place(|| loop {
+//             for result in &rx {
+//                 match result {
+//                     Ok(events) => events.iter().for_each(|e| {
+//                         if IS_DEBUG { println!("watch event: {:?}", e); }
+//                         let this = Arc::clone(&sf);
+//                         sf_set_modified(this);
+//                     }),
+//                     Err(error) => { if IS_DEBUG { println!("Error {error:?}") }},
+//                 }
+//             }
+//         });
+//     });
+// }
+
+// watch by polling the file modification time
+// may be more reliable than events?
+use notify::{PollWatcher, Watcher};
+fn watch_by_poll(path: PathBuf, sf: Arc<Mutex<ScoutFileInner>>) {
     let (tx, rx) = std::sync::mpsc::channel();
-    let mut debouncer = new_debouncer(std::time::Duration::from_millis(250), None, tx).unwrap();
+    let mut watcher = PollWatcher::new(tx, notify::Config::default().with_poll_interval(std::time::Duration::from_millis(500))).unwrap();
     thread::spawn(move || {
-        debouncer.watcher().watch(path.clone().as_path(), notify::RecursiveMode::NonRecursive).unwrap();
+        watcher.watch(path.clone().as_path(), notify::RecursiveMode::NonRecursive).unwrap();
         block_in_place(|| loop {
             for result in &rx {
                 match result {
-                    Ok(events) => events.iter().for_each(|e| {
-                        if IS_DEBUG { println!("watch event: {:?}", e); }
+                    Ok(event) => {
+                        if IS_DEBUG { println!("watch event: {:?}", event); }
                         let this = Arc::clone(&sf);
                         sf_set_modified(this);
-                    }),
+                    },
                     Err(error) => { if IS_DEBUG { println!("Error {error:?}") }},
                 }
             }
         });
     });
 }
+
 
 // struct to hold info about the scout file
 struct ScoutFileInner {
@@ -294,7 +319,7 @@ impl ScoutFile {
         this.modified = true; // set as modified initially, so we force an initial upload
         drop(this);
         // set a watcher on this file
-        watch2(path2, local_self);
+        watch_by_poll(path2, local_self); // or use watch_by_events, but less reliable?
         let this = Arc::clone(&self.inner);
         thread::spawn(move || {
             block_in_place(|| loop {
