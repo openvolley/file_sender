@@ -298,7 +298,7 @@ impl ScoutFile {
     pub fn set_b64(&mut self, b64: bool) {
         self.inner.lock().unwrap().b64 = b64;
         let this = Arc::clone(&self.inner);
-        sf_check_send(this);
+        sf_set_modified(this); // b64 has changed, set as modified so it gets re-uploaded
     }
 
     pub fn set_pantry_id(&mut self, pantry_id: &str) {
