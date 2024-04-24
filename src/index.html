@@ -25,9 +25,9 @@
       </div>
       <h1>Scout File Sender</h1>
       <p><button id="selbut">Select scout file</button></p>
-      <p>Scout file: <span id="scout-file"></span> <span id="scout-file-status"></span> <span id="status-msg"></span></p>
+      <p>Scout file: <span id="scout-file"></span><br />Status: <span id="scout-file-status"></span> <span id="status-msg"></span></p>
       <!-- todo implement other upload options here -->
-      <p><label title="Base64-encoding might be necessary if the input file uses a non-standard text encoding (e.g. for accented characters or Cyrillic, kanji, or other non-ASCII characters)"><input id="b64" type="checkbox" checked onclick="{ console.log('b64_' + this.checked); emit('b64_' + this.checked) }" />Use base64 encoding?</label></p>
+      <p><label title="Base64-encoding might be necessary if the input file uses a non-standard text encoding (e.g. for accented characters or Cyrillic, kanji, or other non-ASCII characters)"><input id="b64" type="checkbox" checked onclick="{ emit('b64_' + this.checked) }" />Use base64 encoding?</label></p>
       <p>Pantry ID: <input id="pantry-id" placeholder="Enter your pantry ID" />
         <button id="pid-button" onclick='send_pid()' title="Set your pantry ID" style="visibility:hidden;">Set</button>
       (get one from the <a href="https://getpantry.cloud" alt="Pantry site">Pantry website</a>)

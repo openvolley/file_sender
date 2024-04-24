@@ -1,19 +1,16 @@
 const { invoke } = window.__TAURI__.tauri;
 const { emit, listen } = window.__TAURI__.event;
 
-let sfEl;
-let stEl;
-let hideSUlink = false;
+let sfEl; let stEl; let stmsgEl; let hideSUlink = false;
 
-let pid = "";
-let pidEl;
+let pid = ""; let pidEl;
+
 async function jsget_pid() {
     pid = await invoke("get_pantry_id");
     pidEl.value = pid;
 }
 
-let lau;
-let ldu;
+let lau; let ldu;
 function lau2clip() { navigator.clipboard.writeText(lau); }
 function ldu2clip() { navigator.clipboard.writeText(ldu); }
 
@@ -55,6 +52,7 @@ function pid_button_visibility() {
 window.addEventListener("DOMContentLoaded", () => {
     sfEl = document.querySelector("#scout-file");
     stEl = document.querySelector("#scout-file-status");
+    stmsgEl = document.querySelector("#status-msg");
     pidEl = document.querySelector("#pantry-id");
     document.querySelector("#selbut").addEventListener("click", (e) => {
         emit("select_file");
@@ -77,13 +75,21 @@ listen("set_scout_file", (event) => {
 listen("scout_file_status", (event) => {
     //console.log("got scout_file_status: " + event.payload.message);
     if (event.payload.message === "ok") {
-        stEl.innerHTML =  "<i style=\"color:green;\" class=\"fa-regular fa-circle-check\"></i>"
+        stEl.innerHTML =  "<i style=\"color:green;\" class=\"fa-regular fa-circle-check\"></i>";
+        stmsgEl.innerHTML = "";
     } else if (event.payload.message === "uploading") {
-        stEl.innerHTML =  "<i style=\"color:black;\" class=\"fa-solid fa-spinner fa-spin\"></i>"
+        stEl.innerHTML =  "<i style=\"color:black;\" class=\"fa-solid fa-spinner fa-spin\"></i>";
+        stmsgEl.innerHTML = "";
     } else if (event.payload.message === "na") {
-        stEl.innerHTML =  ""
+        stEl.innerHTML =  "";
+        stmsgEl.innerHTML = "";
     } else {
-        stEl.innerHTML =  "<i style=\"color:red;\" class=\"fa-regular fa-circle-xmark\"></i> (" + event.payload.message + ")";
+        stEl.innerHTML =  "<i style=\"color:red;\" class=\"fa-regular fa-circle-xmark\"></i>";
+        var msg = event.payload.message;
+        if (!document.getElementById("b64").checked && msg.includes("did not contain valid UTF-8")) {
+            msg = msg + " (try enabling base64 encoding)";
+        }
+        stmsgEl.innerHTML = msg;
     }
 });
 
