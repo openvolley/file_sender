@@ -22,7 +22,7 @@ Science Untangled users can share live-scouted stats without exposing their pant
 
     - enter your pantry ID into the associated text box
 
-    - click the `Select scout file` button and choose your scout file
+    - click the `Select scout file` button and choose your scout file. NOTE: it is best to point the file sender at your "safety scout" file (DataVolley) or "live export" file (VolleyStation) --- these files are automatically saved at the end of each rally. The file sender will detect the updated file each time it is saved and re-upload it. If you point the file sender at a dvw file in your regular "Seasons" directory (DataVolley) you will need to remember to manually save the file whenever you want the updated data to be re-uploaded
 
     - the `Use base64 encoding` box is ticked by default, and is probably safest to leave that way. You might not need this if your file does not use any non-ASCII text (i.e. no accented, Cyrillic, kanji, or similar non-ASCII characters). Base64 encoding can cope with such text, but creates a larger file that will be slightly slower to process. If you see an error saying "stream did not contain valid UTF-8" then base64 encoding must be used.
 
