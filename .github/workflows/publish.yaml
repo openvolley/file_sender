@@ -15,16 +15,16 @@ jobs:
         include:
           # - platform: 'macos-latest' # for Arm based macs (M1 and above).
           #   args: '--target aarch64-apple-darwin'
-          #   suargs: '--target aarch64-apple-darwin --features hide-su-link --config src-tauri/tauri.conf-nosu.json'
+          #   nosuargs: '--target aarch64-apple-darwin --features hide-su-link --config src-tauri/tauri.conf-nosu.json'
           - platform: 'macos-latest' # for Intel based macs.
             args: '--target x86_64-apple-darwin'
-            suargs: '--target x86_64-apple-darwin --features hide-su-link --config src-tauri/tauri.conf-nosu.json'
+            nosuargs: '--target x86_64-apple-darwin --features hide-su-link --config src-tauri/tauri.conf-nosu.json'
           - platform: 'ubuntu-20.04' # ubuntu-20.04, Tauri v1. Note that ubuntu-22.04 here can be used, but requires users to also be using 22.04
             args: ''
-            suargs: '--features hide-su-link --config src-tauri/tauri.conf-nosu.json'
+            nosuargs: '--features hide-su-link --config src-tauri/tauri.conf-nosu.json'
           - platform: 'windows-latest'
             args: ''
-            suargs: '--features hide-su-link --config src-tauri/tauri.conf-nosu.json'
+            nosuargs: '--features hide-su-link --config src-tauri/tauri.conf-nosu.json'
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -56,7 +56,7 @@ jobs:
         with:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
           releaseName: 'Scoutfile Sender v__VERSION__'
-          releaseBody: 'See the assets to download the version for your platform. The files named nosu show only the live data URL, not the Science Untangled live app url.'
+          releaseBody: 'See the assets to download the version for your platform. This version shows the Science Untangled live app URL as well as the live data URL.'
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
@@ -65,9 +65,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
-          releaseName: 'Scoutfile Sender v__VERSION__'
-          releaseBody: 'See the assets to download the version for your platform. The files named nosu show only the live data URL, not the Science Untangled live app url.'
+          tagName: app-nosu-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
+          releaseName: 'Scoutfile Sender v__VERSION__ (No Science Untangled link)'
+          releaseBody: 'See the assets to download the version for your platform. This version shows only the live data URL, not the Science Untangled live app URL.'
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.suargs }}
+          args: ${{ matrix.nosuargs }}
