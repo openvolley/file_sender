@@ -18,6 +18,8 @@ Science Untangled users can share live-scouted stats without exposing their pant
 
 1. Download and install the Scoutfile sender app from the [GitHub releases page](https://github.com/scienceuntangled/file_sender/releases). Installers are available for Windows, Mac, and Linux. If you are not a Science Untangled user, you can choose the app version without the SU live app link (it will show the data link only).
 
+   Note that you will get a warning when installing (on some platforms) about "untrusted software" because we have not digitally signed the executables. If you are so inclined, you can [build the executable yourself](README.md#build-from-source) to be sure that they have not been tampered with.
+
 1. Start the Scoutfile sender app, and then:
 
     - enter your pantry ID into the associated text box
@@ -86,3 +88,14 @@ x <- fetch_pantry_url("https://getpantry.cloud/apiv1/pantry/PANTRY_ID/basket/FIL
 
 ```
 
+## Building from source
+
+Most users will use one of our [pre-built executables](https://github.com/scienceuntangled/file_sender/releases). However, if you wish to build the executable yourself (perhaps because an executable has not been provided for your machine, or you wish to modify the app):
+
+1. Install Rust and Tauri: https://tauri.app/v1/guides/getting-started/prerequisites
+
+1. Install the Tauri command line interpreter: `cargo install tauri-cli`
+
+1. Clone this repository, change to the `src-tauri` directory and run the `cargo tauri build` command
+
+1. The executable should be in the `src-tauri/target/release` directory.
