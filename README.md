@@ -18,7 +18,7 @@ Science Untangled users can share live-scouted stats without exposing their pant
 
 1. Download and install the Scoutfile sender app from the [GitHub releases page](https://github.com/scienceuntangled/file_sender/releases). Installers are available for Windows, Mac, and Linux. If you are not a Science Untangled user, you can choose the app version without the SU live app link (it will show the data link only).
 
-   Note that you will get a warning when installing (on some platforms) about "untrusted software" because we have not digitally signed the executables. If you are so inclined, you can [build the executable yourself](README.md#build-from-source) to be sure that they have not been tampered with.
+Note that you will get a warning when installing (on some platforms) about "untrusted software" because we have not digitally signed the executables. If you are so inclined, you can [build the executable yourself](?tab=readme-ov-file#building-from-source) to be sure that they have not been tampered with.
 
 1. Start the Scoutfile sender app, and then:
 
