@@ -262,6 +262,7 @@ fn get_basket_name(p: PathBuf) -> String {
         Ok(v) => {
             if v {
                 let b: String = p.file_name().unwrap().to_str().unwrap().into();
+                let b = b.replace("#", "");
                 return urlencoding::encode(&b).into();
             } else {
                 return "".into();
