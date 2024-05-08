@@ -262,8 +262,7 @@ fn get_basket_name(p: PathBuf) -> String {
         Ok(v) => {
             if v {
                 let b: String = p.file_name().unwrap().to_str().unwrap().into();
-                let b = b.replace("#", "");
-                return urlencoding::encode(&b).into();
+                return urlencoding::encode(&b).into(); // this encodes "everything except alphanumerics and - _ . ~" (https://github.com/kornelski/rust_urlencoding)
             } else {
                 return "".into();
             }
