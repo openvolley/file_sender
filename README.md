@@ -61,6 +61,8 @@ Files will automatically be deleted from your Pantry storage after 30 days, but 
 
 ### Downloading in scripts
 
+#### From the internet-shared copy
+
 The file is stored in json format, optionally base64-encoded. To retrieve it in a script you need to make a GET request, then extract the data from the json packet and optionally base64-decode it. A helper function in R might look like:
 
 ```
@@ -97,6 +99,16 @@ fetch_pantry_url <- function(url, max_size = 5e6, accept = c("text/plain", "appl
 
 x <- fetch_pantry_url("https://getpantry.cloud/apiv1/pantry/PANTRY_ID/basket/FILE_NAME")
 ## will download to a temporary file and return the filename
+
+```
+
+#### From the locally-shared copy
+
+When sharing locally, the file is served as-is, so the download process is much simpler. In R you can just do something like:
+
+```
+myfile <- tempfile(fileext = ".dvw") ## temporary file
+download.file("http://192.168.1.24:7474/live.dvw", destfile = myfile)
 
 ```
 
