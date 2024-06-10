@@ -16,11 +16,11 @@ Science Untangled users can share live-scouted stats without exposing their pant
 
 ## How to use
 
-1. For internet sharing, sign up to Pantry and get your pantry ID. Go to https://getpantry.cloud/ and look for the "Create a Pantry" button. It will give you a pantry ID - save this somewhere.
-
 1. Download and install the Scoutfile sender app from the [GitHub releases page](https://github.com/scienceuntangled/file_sender/releases). Installers are available for Windows, Mac, and Linux. If you are not a Science Untangled user, you can choose the app version without the SU live app link (it will show the data link only).
 
-Note that you will get a warning when installing (on some platforms) about "untrusted software" because we have not digitally signed the executables. If you are so inclined, you can [build the executable yourself](?tab=readme-ov-file#building-from-source) to be sure that they have not been tampered with.
+   Note that you will get a warning when installing (on some platforms) about "untrusted software" because we have not digitally signed the executables. If you are so inclined, you can [build the executable yourself](?tab=readme-ov-file#building-from-source) to be sure that they have not been tampered with.
+
+1. For internet sharing, sign up to Pantry and get your pantry ID. Go to https://getpantry.cloud/ and look for the "Create a Pantry" button. It will give you a pantry ID - save this somewhere.
 
 1. Start the Scoutfile sender app, and then:
 
@@ -28,9 +28,9 @@ Note that you will get a warning when installing (on some platforms) about "untr
 
     - click the `Select scout file` button and choose your scout file. NOTE: it is best to point the file sender at your "safety scout" file (DataVolley) or "live export" file (VolleyStation) --- these files are automatically saved at the end of each rally. The file sender will detect the updated file each time it is saved and re-upload it. If you point the file sender at a dvw file in your regular "Seasons" directory (DataVolley) you will need to remember to manually save the file whenever you want the updated data to be re-uploaded
 
-    - the `Use base64 encoding` box is ticked by default, and is probably safest to leave that way. You might not need this if your file does not use any non-ASCII text (i.e. no accented, Cyrillic, kanji, or similar non-ASCII characters). Base64 encoding can cope with such text, but creates a larger file that will be slightly slower to process. If you see an error saying "stream did not contain valid UTF-8" then base64 encoding must be used. (This only matters for internet sharing, not local.)
+    - the `Use base64 encoding` box is ticked by default, and is probably safest to leave that way. You might not need this if your file does not use any non-ASCII text (i.e. no accented, Cyrillic, kanji, or similar non-ASCII characters). Base64 encoding can cope with such text, but creates a larger file that will be slightly slower to process. If you see an error saying "stream did not contain valid UTF-8" then base64 encoding must be used. (Base64 encoding only matters for internet sharing, not local.)
 
-1. The "Internet status" icon will show a progress indicator each time the file is uploading, followed by a green tick if the upload was successful (or a red cross if not).
+1. The "Internet status" icon will show a progress indicator each time the file is uploading, followed by a green tick if the upload was successful or a red cross if not.
 
 1. The "Local status" icon will similarly show a green tick or red cross.
 
@@ -51,13 +51,7 @@ Use the button to copy the associated link to the clipboard.
 
 ## Live stats
 
-Science Untangled users can also open the "Live app" link (requires internet sharing). Once the live app has opened, ensure that you are logged into your Science Untangled account and then look for the "Share this session with anyone" button. This allows you to share stats from your live-scouted file with other (non-SU) users --- your coaching staff, perhaps. The app will show a QR code to allow easy opening in another (mobile) device.
-
-### Deleting old files
-
-Pantry allows a maximum of 100 different files to be stored at any one time. The same file uploaded multiple times (with changes) in the same session only counts as one file.
-
-Files will automatically be deleted from your Pantry storage after 30 days, but if you need to clean up your storage you can do so via the [Pantry dashboard](https://getpantry.cloud/) (click the "Dashboard" button).
+Science Untangled users can also open the "Live app" link (requires internet sharing). Once the live app has opened, ensure that you are logged into your Science Untangled account and then look for the "Share this session with anyone" button. This allows you to share stats from your live-scouted file with other (non-SU) users &mdash; your coaching staff, perhaps. The app will show a QR code to allow easy opening in another (mobile) device.
 
 ### Downloading in scripts
 
@@ -79,7 +73,9 @@ fetch_pantry_url <- function(url, max_size = 5e6, accept = c("text/plain", "appl
     res <- curl_fetch_memory(url = url, handle = h)
     if (res$status_code == 200) {
         res <- fromJSON(rawToChar(res$content))
-        if (!setequal(names(res), c("filename", "data", "last_modified"))) stop("pantry data in unexpected format")
+        if (!setequal(names(res), c("filename", "data", "last_modified"))) {
+            stop("pantry data in unexpected format")
+        }
         path <- tempfile() ## save to file in temporary directory
         dir.create(path)
         path <- file.path(path, basename(res$filename))
@@ -111,6 +107,12 @@ myfile <- tempfile(fileext = ".dvw") ## temporary file
 download.file("http://192.168.1.24:7474/live.dvw", destfile = myfile)
 
 ```
+
+## Deleting old files
+
+Pantry allows a maximum of 100 different files to be stored at any one time. The same file uploaded multiple times (with changes) in the same session only counts as one file.
+
+Files will automatically be deleted from your Pantry storage after 30 days, but if you need to clean up your storage you can do so via the [Pantry dashboard](https://getpantry.cloud/) (click the "Dashboard" button).
 
 ## Building from source
 
