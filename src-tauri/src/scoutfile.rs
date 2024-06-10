@@ -9,6 +9,7 @@ use std::{fs, thread};
 use std::io::Read;
 use std::time::Duration;
 use tauri::Manager;
+use tokio::sync::oneshot;
 use tokio::task::block_in_place;
 use uuid::Uuid;
 
@@ -24,7 +25,9 @@ fn nice_err(e: impl Error) -> String {
     re.replace(&format!("{}", e), "").into_owned()
 }
 
+// other settings
 const REFRACTORY_PERIOD: u64 = 3;
+const WARP_PORT: u16 = 7474;
 
 #[derive(Clone, Serialize)]
 struct Payload {
@@ -86,6 +89,7 @@ struct ScoutFileInner {
     pantry_id: String,
     b64: bool,
     app: tauri::AppHandle,
+    kill_webserver: Option<tokio::sync::oneshot::Sender<bool>> // channel to shut down web server once started
 }
 
 // the data will be passed between threads, so wrap it in an Arc/Mutex
@@ -271,6 +275,35 @@ fn get_basket_name(p: PathBuf) -> String {
     }
 }
 
+// start web server serving just our scout file, with receiver channel that will shut the server down if a signal is received
+use warp::Filter;
+async fn start_server(p: String, rx: tokio::sync::oneshot::Receiver<bool>) {
+    let (_addr, server) = warp::serve(warp::path("live.dvw").and(warp::fs::file(p)))
+        .bind_with_graceful_shutdown(([0, 0, 0, 0], WARP_PORT), async {
+            rx.await.ok();
+        });
+    server.await;
+}
+
+fn init_server(sf: Arc<Mutex<ScoutFileInner>>) {
+    let (tx, rx) = oneshot::channel::<bool>(); // channel to use to shut the server down when required
+    let temp = Arc::clone(&sf);
+    let mut local_self = temp.lock().unwrap();
+    // kill the existing web server, if there is one, otherwise the port will be in use
+    let _ = match local_self.kill_webserver.take() {
+        Some(x) => x.send(true),
+        None => Ok(()) // ignore
+    };
+    let p = local_self.path.clone();
+    local_self.kill_webserver = Some(tx);
+    let my_local_ip = format!("http://{:?}:{:?}/live.dvw", local_ip_address::local_ip().unwrap(), WARP_PORT);
+    local_self.app.emit_all("local_ip", Payload { message: my_local_ip }).unwrap(); // TODO don't emit this if the server startup failed
+    drop(local_self);
+    tokio::runtime::Runtime::new()
+        .expect("Failed to create Tokio runtime")
+        .block_on(start_server(p.as_path().to_str().unwrap().into(), rx));
+}
+
 impl ScoutFile {
     // construct empty ScoutFile object
     pub fn new(app: tauri::AppHandle) -> ScoutFile {
@@ -280,7 +313,8 @@ impl ScoutFile {
                              modified: false,
                              pantry_id: "".to_string(),
                              b64: true,
-                             app: app
+                             app: app,
+                             kill_webserver: None
             }
         ))}
     }
@@ -321,6 +355,7 @@ impl ScoutFile {
         // set a watcher on this file
         watch_by_poll(path2, local_self); // or use watch_by_events, but less reliable?
         let this = Arc::clone(&self.inner);
+        // spawn the check loop
         thread::spawn(move || {
             block_in_place(|| loop {
                 thread::sleep(Duration::from_secs(1));
@@ -328,12 +363,10 @@ impl ScoutFile {
                 sf_check_send(this2);
             });
         });
+        // start local web server
+        let this3 = Arc::clone(&self.inner);
+        thread::spawn(move || {
+            init_server(this3);
+        });
     }
-
-    // not used yet
-    //    pub fn status(&self) {
-    //      let temp = Arc::clone(&self.inner);
-    //      let local_self = temp.lock().unwrap();
-    //      println!("{}\n  Busy: {}\n  Modified: {}", local_self.path.display(), local_self.busy, local_self.modified);
-    //    }
 }

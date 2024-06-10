@@ -10,9 +10,10 @@ async function jsget_pid() {
     pidEl.value = pid;
 }
 
-let lau; let ldu;
+let lau; let ldu; let idu;
 function lau2clip() { navigator.clipboard.writeText(lau); }
 function ldu2clip() { navigator.clipboard.writeText(ldu); }
+function idu2clip() { navigator.clipboard.writeText(idu); }
 
 async function send_pid() {
     console.log("Setting PID")
@@ -36,6 +37,16 @@ function show_links() {
     } else {
         document.getElementById("live-outer").style.visibility = "hidden";
         lau = "";
+    }
+}
+
+function show_local_link() {
+    if (idu.length > 0) {
+        document.getElementById("local-outer").style.visibility = "visible";
+        //document.getElementById("iulink").href = idu;
+	document.getElementById("idshow").innerHTML = idu;
+    } else {
+        document.getElementById("local-outer").style.visibility = "hidden";
     }
 }
 
@@ -75,16 +86,16 @@ listen("set_scout_file", (event) => {
 listen("scout_file_status", (event) => {
     //console.log("got scout_file_status: " + event.payload.message);
     if (event.payload.message === "ok") {
-        stEl.innerHTML =  "<i style=\"color:green;\" class=\"fa-regular fa-circle-check\"></i>";
+        stEl.innerHTML = "<i style=\"color:green;\" class=\"fa-regular fa-circle-check\"></i>";
         stmsgEl.innerHTML = "";
     } else if (event.payload.message === "uploading") {
-        stEl.innerHTML =  "<i style=\"color:black;\" class=\"fa-solid fa-spinner fa-spin\"></i>";
+        stEl.innerHTML = "<i style=\"color:black;\" class=\"fa-solid fa-spinner fa-spin\"></i>";
         stmsgEl.innerHTML = "";
     } else if (event.payload.message === "na") {
-        stEl.innerHTML =  "";
+        stEl.innerHTML = "";
         stmsgEl.innerHTML = "";
     } else {
-        stEl.innerHTML =  "<i style=\"color:red;\" class=\"fa-regular fa-circle-xmark\"></i>";
+        stEl.innerHTML = "<i style=\"color:red;\" class=\"fa-regular fa-circle-xmark\"></i>";
         var msg = event.payload.message;
         if (!document.getElementById("b64").checked && msg.includes("did not contain valid UTF-8")) {
             msg = msg + " (try enabling base64 encoding)";
@@ -102,3 +113,7 @@ listen("set_b64", (event) => {
     document.getElementById("b64").checked = (event.payload.message == "true" | event.payload.message == true);
 });
 
+listen("local_ip", (event) => {
+    idu = event.payload.message;
+    show_local_link();
+});
