@@ -1,7 +1,7 @@
 # Scoutfile sender
 
 <!-- badges: start -->
-[![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 <!-- badges: end -->
 
 A cross-platform app for monitoring a volleyball scout file and sending it to a remote server when it changes. It is intended as an open mechanism for sharing live-scouted data files (so that they can be used by coaches or others, in online apps or similar, as the match progresses).
@@ -12,7 +12,7 @@ The file is shared locally and over the internet. Internet sharing means that it
 
 This app uses https://getpantry.cloud/ as the internet data exchange platform, because it is free to use and has a simple API for access. Note, however, that anyone who knows your pantry ID can see any file that you upload. Also be aware that once a file has been uploaded, its live data link has your pantry ID embedded in it. We therefore do not recommend using this app for uploading sensitive files. A more appropriate mechanism for sensitive data might be added at a later date, if there is a demand for it.
 
-Science Untangled users can share live-scouted stats without exposing their pantry ID --- see "Live stats" below.
+Science Untangled users can share live-scouted stats without exposing their pantry ID &mdash; see "Live stats" below.
 
 ## How to use
 
@@ -20,13 +20,13 @@ Science Untangled users can share live-scouted stats without exposing their pant
 
    Note that you will get a warning when installing (on some platforms) about "untrusted software" because we have not digitally signed the executables. If you are so inclined, you can [build the executable yourself](?tab=readme-ov-file#building-from-source) to be sure that they have not been tampered with.
 
-1. For internet sharing, sign up to Pantry and get your pantry ID. Go to https://getpantry.cloud/ and look for the "Create a Pantry" button. It will give you a pantry ID - save this somewhere.
+1. For internet sharing, you will need a pantry ID. Go to https://getpantry.cloud/ and look for the "Create a Pantry" button. It will give you a pantry ID &mdash; save this somewhere.
 
 1. Start the Scoutfile sender app, and then:
 
     - for internet sharing, enter your pantry ID into the associated text box
 
-    - click the `Select scout file` button and choose your scout file. NOTE: it is best to point the file sender at your "safety scout" file (DataVolley) or "live export" file (VolleyStation) --- these files are automatically saved at the end of each rally. The file sender will detect the updated file each time it is saved and re-upload it. If you point the file sender at a dvw file in your regular "Seasons" directory (DataVolley) you will need to remember to manually save the file whenever you want the updated data to be re-uploaded
+    - click the `Select scout file` button and choose your scout file. NOTE: it is best to point the file sender at your "safety scout" file (DataVolley) or "live export" file (VolleyStation) &mdash; these files are automatically saved at the end of each rally. The file sender will detect the updated file each time it is saved and re-upload it. If you point the file sender at a dvw file in your regular "Seasons" directory (DataVolley) you will need to remember to manually save the file whenever you want the updated data to be re-uploaded
 
     - the `Use base64 encoding` box is ticked by default, and is probably safest to leave that way. You might not need this if your file does not use any non-ASCII text (i.e. no accented, Cyrillic, kanji, or similar non-ASCII characters). Base64 encoding can cope with such text, but creates a larger file that will be slightly slower to process. If you see an error saying "stream did not contain valid UTF-8" then base64 encoding must be used. (Base64 encoding only matters for internet sharing, not local.)
 
@@ -54,6 +54,8 @@ Use the button to copy the associated link to the clipboard.
 Science Untangled users can also open the "Live app" link (requires internet sharing). Once the live app has opened, ensure that you are logged into your Science Untangled account and then look for the "Share this session with anyone" button. This allows you to share stats from your live-scouted file with other (non-SU) users &mdash; your coaching staff, perhaps. The app will show a QR code to allow easy opening in another (mobile) device.
 
 ### Downloading in scripts
+
+You can download data from the file sender in your own programs.
 
 #### From the internet-shared copy
 
