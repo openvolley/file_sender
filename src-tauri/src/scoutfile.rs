@@ -101,6 +101,19 @@ fn sf_check_send(sf: Arc<Mutex<ScoutFileInner>>) {
     let temp = Arc::clone(&sf);
     let local_self = temp.lock().unwrap();
 
+    // show local IP in the UI. Do this every check_send cycle so that if the network drops out, we have an up to date indicator
+    let my_local_ip = match local_ip_address::local_ip() {
+        Ok(x) => format!("http://{:?}:{:?}/live.dvw", x, WARP_PORT),
+        Err(_) => "".to_string()
+    };
+    if my_local_ip.len() > 0 {
+        local_self.app.emit_all("local_ip", Payload { message: my_local_ip.clone() }).unwrap();
+        local_self.app.emit_all("scout_local_status", Payload { message: "ok".into() }).unwrap();
+    } else {
+        local_self.app.emit_all("local_ip", Payload { message: "".into() }).unwrap();
+        local_self.app.emit_all("scout_local_status", Payload { message: "No local network".into() }).unwrap();
+    }
+
     if local_self.path.as_path().to_str().unwrap().len() < 1 {
         // file path has not been set
         local_self.app.emit_all("scout_file_status", Payload { message: "na".into() }).unwrap();
@@ -213,20 +226,27 @@ fn sf_send(sf: Arc<Mutex<ScoutFileInner>>) {
             let client = reqwest::blocking::Client::new()
                 .post(desturl)
                 .header("Content-Type", "application/json")
-                .json(&post_data).send().unwrap();
-
+                .json(&post_data).send();
             local_self2 = temp2.lock().unwrap();
-            if client.status().is_success() {
-                if IS_DEBUG { println!("success!"); }
-            } else if client.status().is_server_error() {
-                local_self2.modified = true; // send failed, so reset state to modified
-                if IS_DEBUG { println!("server error! {:?}", client); }
-                local_self2.app.emit_all("scout_file_status", Payload { message: "failed".into() }).unwrap(); // TODO get err msg or code
-            } else {
-                local_self2.modified = true; // send failed, so reset state to modified
-                if IS_DEBUG { println!("Something else happened. Status: {:?}", client.status()); }
-                local_self2.app.emit_all("scout_file_status", Payload { message: "failed".into() }).unwrap(); // TODO get err msg or code
-            }
+            let _ = match client {
+                Ok(client) => {
+                    if client.status().is_success() {
+                        if IS_DEBUG { println!("success!"); }
+                    } else if client.status().is_server_error() {
+                        local_self2.modified = true; // send failed, so reset state to modified
+                        if IS_DEBUG { println!("server error! {:?}", client); }
+                        local_self2.app.emit_all("scout_file_status", Payload { message: "failed".into() }).unwrap(); // TODO get err msg or code
+                    } else {
+                        local_self2.modified = true; // send failed, so reset state to modified
+                        if IS_DEBUG { println!("Something else happened. Status: {:?}", client.status()); }
+                        local_self2.app.emit_all("scout_file_status", Payload { message: "failed".into() }).unwrap(); // TODO get err msg or code
+                    }
+                },
+                Err(_) => {
+                    local_self2.modified = true; // send failed, so reset state to modified
+                    local_self2.app.emit_all("scout_file_status", Payload { message: "failed".into() }).unwrap(); // TODO get err msg or code
+                }
+            };
             drop(local_self2); // release lock while sending
             // now a refractory period during which we cannot send again
             thread::sleep(Duration::from_secs(REFRACTORY_PERIOD));
@@ -296,9 +316,19 @@ fn init_server(sf: Arc<Mutex<ScoutFileInner>>) {
     };
     let p = local_self.path.clone();
     local_self.kill_webserver = Some(tx);
-    let my_local_ip = format!("http://{:?}:{:?}/live.dvw", local_ip_address::local_ip().unwrap(), WARP_PORT);
-    local_self.app.emit_all("local_ip", Payload { message: my_local_ip }).unwrap(); // TODO don't emit this if the server startup failed
-    drop(local_self);
+    let my_local_ip = match local_ip_address::local_ip() {
+        Ok(x) => format!("http://{:?}:{:?}/live.dvw", x, WARP_PORT),
+        Err(_) => "".to_string()
+    };
+    if my_local_ip.len() > 0 {
+        local_self.app.emit_all("local_ip", Payload { message: my_local_ip.clone() }).unwrap(); // TODO don't emit this if the server startup failed
+        local_self.app.emit_all("scout_local_status", Payload { message: "ok".into() }).unwrap();
+        drop(local_self);
+    } else {
+        local_self.app.emit_all("scout_local_status", Payload { message: "No local network".into() }).unwrap();
+        drop(local_self);
+    }
+    // start the local server regardless of whether we retrieved the local IP address
     tokio::runtime::Runtime::new()
         .expect("Failed to create Tokio runtime")
         .block_on(start_server(p.as_path().to_str().unwrap().into(), rx));

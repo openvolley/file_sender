@@ -40,6 +40,7 @@
       <hr class="hrgrey"/>
       <div style="width:100%; display:inline-flex;">
         <div id="live-outer" style="visibility:hidden; width:60%; display:inline-block;">
+          <p>Internet status: <span id="scout-file-status"></span> <span id="status-msg"></span></p>
           <div id="su_link" style="width:55%; margin-left:auto; margin-right:auto; display:inline-block;">
             <div>
               <p>SU live app link (subscribers only):<br />
@@ -56,10 +57,10 @@
               </p>
             </div>
           </div>
-          <p>Internet status: <span id="scout-file-status"></span> <span id="status-msg"></span></p>
         </div>
-        <div id="local-outer" style="visibility:hidden; width:30%; display:inline-block;">
-          <div style="display:inline-block;"> <!-- width:30%; margin-left:auto; margin-right:auto; -->
+        <div style="width:30%; display:inline-block;">
+          <p><span id="scout-local-status"></span> <span id="local-status-msg"></span></p>
+          <div id="local-outer" style="visibility:hidden; display:inline-block;"> <!-- width:30%; margin-left:auto; margin-right:auto; -->
             <div>
               <p>Local network data link:<br />
                 <!--a id="iulink" class="linkbutton" href="" target="_blank" title="Open in browser"><i class="fa-solid fa-link"></i></a-->

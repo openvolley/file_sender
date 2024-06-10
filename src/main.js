@@ -1,7 +1,7 @@
 const { invoke } = window.__TAURI__.tauri;
 const { emit, listen } = window.__TAURI__.event;
 
-let sfEl; let stEl; let stmsgEl; let hideSUlink = false;
+let sfEl; let stEl; let stmsgEl; let stlEl; let stlmsgEl; let hideSUlink = false;
 
 let pid = ""; let pidEl;
 
@@ -27,7 +27,7 @@ function show_links() {
     if (ldu.length > 0) {
         document.getElementById("live-outer").style.visibility = "visible";
         lau = "https://apps.untan.gl/live/?url=" + ldu;
-        document.getElementById("lulink").href = ldu;
+        //document.getElementById("lulink").href = ldu;
         if (!hideSUlink) {
             document.getElementById("lalink").href = lau;
             document.getElementById("su_link").style.display = "inline-block";
@@ -44,7 +44,7 @@ function show_local_link() {
     if (idu.length > 0) {
         document.getElementById("local-outer").style.visibility = "visible";
         //document.getElementById("iulink").href = idu;
-	document.getElementById("idshow").innerHTML = idu;
+        document.getElementById("idshow").innerHTML = idu;
     } else {
         document.getElementById("local-outer").style.visibility = "hidden";
     }
@@ -64,6 +64,8 @@ window.addEventListener("DOMContentLoaded", () => {
     sfEl = document.querySelector("#scout-file");
     stEl = document.querySelector("#scout-file-status");
     stmsgEl = document.querySelector("#status-msg");
+    stlEl = document.querySelector("#scout-local-status");
+    stlmsgEl = document.querySelector("#local-status-msg");
     pidEl = document.querySelector("#pantry-id");
     document.querySelector("#selbut").addEventListener("click", (e) => {
         emit("select_file");
@@ -101,6 +103,21 @@ listen("scout_file_status", (event) => {
             msg = msg + " (try enabling base64 encoding)";
         }
         stmsgEl.innerHTML = msg;
+    }
+});
+
+listen("scout_local_status", (event) => {
+    //console.log("got scout_local_status: " + event.payload.message);
+    if (event.payload.message === "ok") {
+        stlEl.innerHTML = "Local status: <i style=\"color:green;\" class=\"fa-regular fa-circle-check\"></i>";
+        stlmsgEl.innerHTML = "";
+    } else if (event.payload.message === "na") {
+        stlEl.innerHTML = "";
+        stlmsgEl.innerHTML = "";
+    } else {
+        stlEl.innerHTML = "Local status: <i style=\"color:red;\" class=\"fa-regular fa-circle-xmark\"></i>";
+        var msg = event.payload.message;
+        stlmsgEl.innerHTML = msg;
     }
 });
 

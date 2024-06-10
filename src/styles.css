@@ -89,7 +89,12 @@ button {
 }
 
 #scout-file-status {
-    font-size: 32px;
+    font-size: 24px;
+    vertical-align: middle;
+}
+
+#scout-local-status svg {
+    font-size: 24px;
     vertical-align: middle;
 }
 
