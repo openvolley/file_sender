@@ -46,6 +46,7 @@ For internet sharing:
 
 For local sharing, you will need to be connected to a local wifi network. The bench laptop (or whatever client will be reading the live-scouted file) needs to be on the same network. Once you have selected a scout file to share, the Scoutfile sender will start a local webserver through which it delivers the file to those other users. The "Local status" icon will show a green tick or red cross.
 
+If you wish to share the file locally but not over the internet, simple clear the pantry ID box.
 
 ## Accessing the live data
 
