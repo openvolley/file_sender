@@ -50,24 +50,14 @@ jobs:
       - name: install frontend dependencies
         run: yarn install # change this to npm, pnpm or bun depending on which one you use.
 
+      # from 2026, only a single build with no SU links. See previous version of publish.yaml for dual-build
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
           releaseName: 'Scoutfile Sender v__VERSION__'
-          releaseBody: 'See the assets to download the version for your platform. This version shows the Science Untangled live app URL as well as the live data URL.'
-          releaseDraft: true
-          prerelease: false
-          args: ${{ matrix.args }}
-
-      - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: app-nosu-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
-          releaseName: 'Scoutfile Sender v__VERSION__ (No Science Untangled link)'
-          releaseBody: 'See the assets to download the version for your platform. This version shows only the live data URL, not the Science Untangled live app URL.'
+          releaseBody: 'See the assets to download the version for your platform.'
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.nosuargs }}

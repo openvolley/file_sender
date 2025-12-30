@@ -4,6 +4,10 @@
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 <!-- badges: end -->
 
+**31-Dec-2025: Science Untangled users:** From version 0.4.0 this app no longer provides a link to the Science Untangled live match analysis app. Use the Science Untangled-specific app instead: https://untan.gl/scouts.html (or use v0.3.0 of this app, if you prefer)
+
+---
+
 A cross-platform app for monitoring a volleyball scout file and making it available to remote users. It is intended as an open mechanism for sharing live-scouted data files (so that they can be used by coaches or others, in online apps or similar, as the match progresses).
 
 The file is shared locally as well as over the internet. Internet sharing means that it can be accessed anywhere in the world (but only if the scout's laptop has internet access). Local sharing means that scouts without internet access can still share their file with other users on the same local network.
@@ -12,13 +16,11 @@ The file is shared locally as well as over the internet. Internet sharing means 
 
 For internet sharing, this app uses https://getpantry.cloud/ as its data exchange platform, because it is free to use and has a simple API for access. Note, however, that anyone who knows your pantry ID can see any file that you upload. Also be aware that once a file has been uploaded, its live data link has your pantry ID embedded in it. We therefore do not recommend using this app for uploading sensitive files. A more appropriate mechanism for sensitive data might be added at a later date, if there is a demand for it.
 
-Science Untangled users can share live-scouted stats without exposing their pantry ID &mdash; see "Live stats" below.
-
 ## How to use
 
 ### Installation
 
-1. Download and install the Scoutfile sender app from the [GitHub releases page](https://github.com/scienceuntangled/file_sender/releases). Installers are available for Windows, Mac, and Linux. If you are not a Science Untangled user, you can choose the app version without the SU live app link (it will show the data links only).
+1. Download and install the Scoutfile sender app from the [GitHub releases page](https://github.com/openvolley/file_sender/releases). Installers are available for Windows, Mac, and Linux.
 
    Note that on some platforms you will get a warning when installing about "untrusted software" because we have not digitally signed the executables. If you are so inclined, you can [build the executable yourself](?tab=readme-ov-file#building-from-source) to be sure that they have not been tampered with.
 
@@ -64,15 +66,11 @@ Use the button to copy the associated link to the clipboard.
 
 NOTE: the IP address shown here might be incorrect if the scout laptop is connected to multiple local networks. In that case, you will need to determine the correct IP address to use manually. The data link will always be `http://SCOUT.IP.ADDRESS:7474/live.dvw`.
 
-## Live stats
-
-Science Untangled users can also open the "Live app" link (if using internet sharing). Once the live app has opened, ensure that you are logged into your Science Untangled account and then look for the "Share this session with anyone" button. This allows you to share stats from your live-scouted file with other (non-SU) users &mdash; your coaching staff, perhaps. The app will show a QR code to allow easy opening in a phone or other device.
-
-### Downloading in scripts
+## Downloading in scripts
 
 You can download data from the file sender in your own programs.
 
-#### From the internet-shared copy
+### From the internet-shared copy
 
 The file is stored in json format, optionally base64-encoded. To retrieve it in a script you need to make a GET request, then extract the data from the json packet and optionally base64-decode it. A helper function in R might look like:
 
@@ -84,7 +82,7 @@ library(httr)
 
 fetch_pantry_url <- function(url, max_size = 5e6, accept = c("text/plain", "application/json")) {
     h <- new_handle(maxfilesize = max_size) ## control the max file size we will accept
-    handle_setheaders(h, Accept = accept) ## and the allowed response types
+    handle_setheaders(h, Accept = accept, `Cache-Control` = "no-cache") ## the allowed response types, and disable server-side caching
     ## for pantry, download to memory, optionally b64-decode, and write to file
     url <- URLencode(url)
     res <- curl_fetch_memory(url = url, handle = h)
@@ -115,13 +113,13 @@ x <- fetch_pantry_url("https://getpantry.cloud/apiv1/pantry/PANTRY_ID/basket/FIL
 
 ```
 
-#### From the locally-shared copy
+### From the locally-shared copy
 
 When sharing locally, the file is served as-is, so the download process is much simpler. In R you can just do something like:
 
 ```
 myfile <- tempfile(fileext = ".dvw") ## temporary file
-download.file("http://192.168.1.24:7474/live.dvw", destfile = myfile)
+download.file("http://192.168.1.24:7474/live.dvw", destfile = myfile, cacheOK = FALSE)
 
 ```
 
@@ -133,7 +131,7 @@ Files will automatically be deleted from your Pantry storage after 30 days, but 
 
 ## Building from source
 
-Most users will use one of our [pre-built executables](https://github.com/scienceuntangled/file_sender/releases). However, if you wish to build the executable yourself (perhaps because an executable has not been provided for your machine, or you wish to modify the app):
+Most users will use one of our [pre-built executables](https://github.com/openvolley/file_sender/releases). However, if you wish to build the executable yourself (perhaps because an executable has not been provided for your machine, or you wish to modify the app):
 
 1. Install Rust and Tauri: https://tauri.app/v1/guides/getting-started/prerequisites
 
